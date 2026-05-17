@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Detektív - KIHÍVÁS</title>
+    <!-- Tailwind CSS a gyors és tiszta elrendezéshez -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide ikonok a modern és letisztult vizuális visszajelzéshez -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Fontok importálása a Design Brief alapján -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* A kapott DESIGN BRIEF pontos színpalettájának és dizájnrendszerének implementációja */
+        :root {
+            --primary-300: #F9C97A;
+            --primary-500: #F4A329;
+            --primary-700: #B45309;
+            --secondary-300: #7EDAD6;
+            --secondary-500: #2BB6B4;
+            --secondary-700: #0F766E;
+            --accent-300: #F49DB8;
+            --accent-500: #E8467B;
+            --accent-700: #A61E4D;
+            --bg: #FFF7F2;
+            --surface: #FFFFFF;
+            --surface-alt: #F5F7FA;
+            --border: #E6E9EF;
+            --text: #1F2937;
+            --text-2: #4B5563;
+            --text-muted: #6B7280;
+            --text-inverse: #FFFFFF;
+            --success: #2F9E44;
+            --warning: #F59F00;
+            --error: #D92D20;
+            --info: #2563EB;
+        }
+
+        body {
+            font-family: 'Nunito', 'Inter', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            transition: background-color 0.3s ease;
+        }
+
+        .custom-card {
+            background-color: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(180, 83, 9, 0.04);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-action {
+            border-radius: 9999px;
+            font-weight: 700;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .btn-good {
+            background-color: var(--secondary-500);
+            color: var(--text-inverse);
+        }
+        .btn-good:hover {
+            background-color: var(--secondary-700);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(43, 182, 180, 0.3);
+        }
+
+        .btn-bad {
+            background-color: var(--accent-500);
+            color: var(--text-inverse);
+        }
+        .btn-bad:hover {
+            background-color: var(--accent-700);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(232, 70, 123, 0.3);
+        }
+
+        .pill-progress {
+            background-color: var(--primary-300);
+            color: var(--primary-700);
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body class="flex flex-col justify-between items-center p-4 md:p-8">
+
+    <!-- FŐ TARTALOM EDÉNY -->
+    <main class="w-full max-w-2xl mx-auto flex-grow flex flex-col justify-center my-4">
+        
+        <!-- KEZDŐ KÉPERNYŐ -->
+        <div id="start-screen" class="custom-card p-6 md:p-10 text-center space-y-6">
+            <div class="inline-flex p-4 bg-amber-100 rounded-full text-[var(--primary-500)]">
+                <i data-lucide="shield-question" class="w-12 h-12"></i>
+            </div>
+            <h1 class="text-3xl font-bold tracking-tight text-[var(--text)]">Prompt Detektív: A Kihívás</h1>
+            <p class="text-[var(--text-2)] text-lg leading-relaxed">
+                Teljesen igazad van: ha csoportosítva vannak a tippek, nincs benne semmi kihívás! 
+                Ezért átrendeztem a listát egy <span class="font-bold text-[var(--primary-700)]">fixen előre kevert, trükkös sorrendbe</span>. 
+                A jótanácsok és az álcázott módszertani csapdák mostantól teljesen kiszámíthatatlanul követik egymást, de a játék minden megnyitáskor ugyanazt a tesztsort adja.
+            </p>
+            <p class="text-sm text-[var(--text-muted)] italic">
+                Figyelem: A kártyák fejlécéről eltávolítottam az árulkodó kategóriajelzéseket is, így tényleg csak a saját tudásodra hagyatkozhatsz!
+            </p>
+            <div class="pt-4">
+                <button onclick="startGame()" class="btn-action bg-[var(--primary-500)] hover:bg-[var(--primary-700)] text-white px-8 py-4 text-lg shadow-md hover:shadow-lg transition flex items-center justify-center mx-auto space-x-2">
+                    <span>Indítás: Valódi nyomozás</span>
+                    <i data-lucide="play" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- JÁTÉK KÉPERNYŐ -->
+        <div id="game-screen" class="hidden space-y-6">
+            <!-- Feladat állapotsor -->
+            <div class="flex justify-between items-center bg-white px-4 py-3 rounded-xl border border-[var(--border)] shadow-sm">
+                <div class="flex items-center space-x-2">
+                    <span class="pill-progress" id="progress-text">1 / 20</span>
+                    <span class="text-sm text-[var(--text-2)] font-semibold" id="category-badge">Kritikai elemzés</span>
+                </div>
+                <div class="flex items-center space-x-1 font-bold text-[var(--text-2)]">
+                    <i data-lucide="award" class="w-5 h-5 text-[var(--primary-500)]"></i>
+                    <span>Pontszám: <span id="score-text" class="text-[var(--primary-700)]">0</span></span>
+                </div>
+            </div>
+
+            <!-- Aktuális kártya -->
+            <div class="custom-card p-6 md:p-8 space-y-6 bg-white relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-2 h-full bg-[var(--primary-500)]" id="card-accent-bar"></div>
+                
+                <div class="space-y-4">
+                    <div class="text-[var(--text-muted)] uppercase tracking-wider text-xs font-bold flex items-center space-x-1">
+                        <i data-lucide="help-circle" class="w-4 h-4"></i>
+                        <span>Megfontolandó AI tipp</span>
+                    </div>
+                    <p id="statement-text" class="text-lg md:text-xl font-semibold text-[var(--text)] leading-relaxed pt-2">
+                        <!-- Ide töltődik be a prompt szöveg -->
+                    </p>
+                </div>
+
+                <!-- Interakciós gombok -->
+                <div id="action-buttons" class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+                    <button onclick="submitAnswer(true)" class="btn-action btn-good p-4 flex items-center justify-center space-x-2 text-base">
+                        <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+                        <span>Alkalmazd! (Jó tanács)</span>
+                    </button>
+                    <button onclick="submitAnswer(false)" class="btn-action btn-bad p-4 flex items-center justify-center space-x-2 text-base">
+                        <i data-lucide="x-circle" class="w-5 h-5"></i>
+                        <span>Kerüld! (Csapda)</span>
+                    </button>
+                </div>
+
+                <!-- Automatikus javítás és magyarázat blokk -->
+                <div id="feedback-box" class="hidden p-5 rounded-xl border transition-all duration-300 space-y-3">
+                    <div class="flex items-center space-x-2 font-bold text-lg" id="feedback-title">
+                        <!-- Dinamikus siker/hiba ikon és cím -->
+                    </div>
+                    <p id="explanation-text" class="text-[var(--text-2)] text-base leading-relaxed pl-7">
+                        <!-- Rövid, szakmai magyarázat helye -->
+                    </p>
+                    <div class="text-right pt-2">
+                        <button onclick="nextStatement()" class="btn-action bg-[var(--text)] hover:bg-[var(--text-2)] text-white px-6 py-2.5 text-sm inline-flex items-center space-x-1">
+                            <span>Következő tipp</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VÉGSŐ ÖSSZEGZŐ KÉPERNYŐ -->
+        <div id="end-screen" class="hidden custom-card p-6 md:p-10 text-center space-y-6">
+            <div id="end-icon-container" class="inline-flex p-4 rounded-full">
+                <!-- Dinamikus ikon -->
+            </div>
+            <h1 class="text-3xl font-bold text-[var(--text)]" id="end-title">Kiértékelés lezárva!</h1>
+            <p class="text-xl text-[var(--text-2)]" id="end-score-summary">
+                <!-- Pontszám összefoglaló -->
+            </p>
+            <p class="text-[var(--text-muted)] max-w-md mx-auto text-base" id="end-evaluation">
+                <!-- Szöveges értékelés -->
+            </p>
+            <div class="pt-6">
+                <button onclick="resetGame()" class="btn-action bg-[var(--secondary-500)] hover:bg-[var(--secondary-700)] text-white px-8 py-3 shadow-md transition flex items-center justify-center mx-auto space-x-2">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                    <span>Újra próbálom</span>
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FINOM LÁBJEGYZET -->
+    <footer class="w-full text-center text-xs text-[var(--text-muted)] py-4 border-t border-amber-100/50 mt-auto">
+        Prompt Detektív • Vibe Coding Educational App • Fixen kevert kihívás verzió.
+    </footer>
+
+    <!-- INTERAKTÍV LOGIKA ÉS ADATOK -->
+    <script>
+        // Minden megnyitáskor SZIGORÚAN UGYANAZ a trükkösen kevert sorrend (Jó és Rossz tippek felváltva/keverve)
+        const data = [
+            {
+                id: 1,
+                text: "💡 Tipp: Adj meg pontos szerepkört az AI-nak! Kezdd úgy a promptot, mintha egy profi szakértőt kérnél fel (pl. „Te egy 20 éves tapasztalattal rendelkező iskolatitkár / középiskolai tanár vagy”), mert így a gép azonnal átveszi a megfelelő szakmai nyelvezetet és logikát.",
+                isGood: true,
+                explanation: "Kiváló döntés! A szerep-promptolás (Persona) drasztikusan szűkíti a nyelvi modell asszociációs terét, így sokkal relevánsabb, szakmaibb szempontokat érvényesít a válaszban."
+            },
+            {
+                id: 11,
+                text: "💡 Tipp: Spórolj időt a gépeléssel, és használj rövid, tömör kulcsszavas parancsokat! Az olyan egyszerű utasításokból, mint az „Írj egy óratervet” vagy „Írj egy levelet”, az AI a hatalmas globális adatbázisa alapján azonnal képes kitalálni és összeállítani a számodra legmegfelelőbb standard anyagot.",
+                isGood: false,
+                explanation: "Csapda! A túl rövid, kulcsszavas promptok szinte mindig generikus, közhelyes és sablonos válaszokat szülnek, amik egyáltalán nem igazodnak a valódi tantermi differenciálási igényekhez."
+            },
+            {
+                id: 2,
+                text: "💡 Tipp: Mindig határozd meg pontosan a célközönséget! Írd bele a promptba, hogy a szöveg a 9. osztályos diákok szüleinek, a tantestületnek vagy éppen B1-es szintű nyelvtanulóknak készül, így az AI tökéletesen az ő szintjükhöz igazítja a szóhasználatot.",
+                isGood: true,
+                explanation: "Pontosan! A célközönség specifikálása biztosítja az adaptív tanulást és a pontos nyelvi regisztert, így elkerülhető, hogy a kapott szöveg túl rideg vagy érthetetlen legyen."
+            },
+            {
+                id: 12,
+                text: "💡 Tipp: Ha egy konkrét tanuló egyéni fejlesztési tervéhez vagy fegyelmi ügyéhez kérsz segítséget, másold be a meglévő hivatalos szakértői véleményt vagy jegyzőkönyvet a nevekkel együtt. Így az AI tűpontos kontextust kap, és tökéletesen személyre szabott pedagógiai megoldást vagy hivatalos válaszlevelet generál.",
+                isGood: false,
+                explanation: "Súlyos csapda és adatvédelmi kockázat! Személyes adatokat, neveket, azonosítókat szigorúan tilos nyilvános AI felületekre másolni (GDPR). Mindig teljesen anonimizáld a szöveget (pl. 'X. tanuló'), mielőtt feltöltenéd!"
+            },
+            {
+                id: 3,
+                text: "💡 Tipp: Kérj konkrét formátumot a rendezett adatokért! Nyugodtan utasítsd az AI-t arra, hogy az eredményt háromoszlopos Markdown táblázatba, bullet pontokba vagy számozott listába rendezze, mert így a kimenet azonnal áttekinthető és formázás nélkül másolható lesz a dokumentumaidba.",
+                isGood: true,
+                explanation: "Így van! A strukturált kimenet (táblázat, lista) megkímél a hosszas utólagos formázástól, ráadásul az AI-t is pontosabb, strukturáltabb gondolkodásra kényszeríti."
+            },
+            {
+                id: 13,
+                text: "💡 Tipp: Ha el akarsz kerülni egy bizonyos stílust vagy hibát, fogalmazz meg határozott tagadásokat a promptban! Használj olyan kifejezéseket, mint: „Ne legyen túl nehéz a feladatsor nyelvezete” vagy „Ne legyen rideg a levél hangneme”, mert az AI a „ne” szócskák alapján pontosan tudni fogja, mit kell kihagynia.",
+                isGood: false,
+                explanation: "Módszertani csapda! A nagy nyelvi modellek statisztikai alapon működnek, és hajlamosak figyelmen kívül hagyni a tagadószavakat. Tagadás helyett mindig pozitívan írd le, mit vársz el: 'A feladatsor nyelvezete legyen egyszerű, a hangnem pedig támogató'."
+            },
+            {
+                id: 4,
+                text: "💡 Tipp: Mutass mintát a gépnek a tökéletes stílusért! Ha van egy jól bevált hivatalos leveled vagy egyedi feladatstruktúrád, másold be a promptba mintaként, és kérd meg az AI-t, hogy az új nyers információkat pontosan ezen sablon alapján formálja meg.",
+                isGood: true,
+                explanation: "Szuper! Ezt hívják 'Few-shot prompting'-nak. A minták alapján történő tanítás az egyik legbiztosabb módszer arra, hogy az AI eltalálja az iskola sajátos hangvételét vagy struktúráját."
+            },
+            {
+                id: 14,
+                text: "💡 Tipp: Az AI egy tévedhetetlen digitális zseni, így a generált történelmi dátumokat, jogszabályi hivatkozásokat vagy nyelvtani szabályokat azonnal, ellenőrzés nélkül felhasználhatod a hivatalos iskolai dokumentumokban, vagy kiteheted a diákok elé a táblára.",
+                isGood: false,
+                explanation: "Hatalmas csapda! Az AI nem tudásbázis, hanem szövegjósoló gép. Gyakran generál teljesen valósnak tűnő, de fiktív adatokat (hallucináció). Kritikai ellenőrzés nélkül soha ne használj AI tényadatot!"
+            },
+            {
+                id: 5,
+                text: "💡 Tipp: Bontsd lépésekre a komplexebb tervezést! Ha egy egész témahetet vagy új iskolai házirendet tervezel, ne egyszerre kérd le az egészet. Előbb kérj egy nyers vázlatot, majd a chaten keresztül, pontról pontra haladva bontasd ki vele a részleteket.",
+                isGood: true,
+                explanation: "Tökéletes! A komplex feladatok feldarabolása (scaffolding) javítja az AI teljesítményét, mert egyszerre kisebb logikai egységre kell koncentrálnia, így mélyebb és használhatóbb lesz a tartalom."
+            },
+            {
+                id: 15,
+                text: "💡 Tipp: Legyél maximálisan hatékony, és kérj mindent egy kalap alatt! Egyetlen, hosszan részletezett promptban utasítsd az AI-t, hogy tervezzen meg egy témahetet, generálja le hozzá a diákok feladatlapjait, írja meg a javítókulcsot és a szülői tájékoztató levelet is, így egyetlen gombnyomással kész a teljes csomag.",
+                isGood: false,
+                explanation: "Csapda! Ha egyszerre túl sok feladatot zsúfolsz egyetlen promptba, az AI korlátozott ablak-memóriája miatt a válasz felületes, hiányos és összecsapott lesz. Lépésenként haladj!"
+            },
+            {
+                id: 6,
+                text: "💡 Tipp: Adj meg szigorú terjedelmi korlátokat! Ha nem akarod, hogy az AI túlbeszélje a dolgokat, szabj meg fix szóhatárt (pl. „maximum 150 szó”), és határozd meg, hogy legfeljebb hány kulcspontot emelhet ki a szülőknek szóló hírlevélben.",
+                isGood: true,
+                explanation: "Így igaz! Fix korlátok nélkül az AI hajlamos a bőbeszédűségre. A szigorú korlátozás tisztább, lényegretörőbb üzeneteket eredményez az adminisztrációban."
+            },
+            {
+                id: 16,
+                text: "💡 Tipp: Ügyelj a digitális etikettre, és minden promptot kezdj udvariasan (pl. „Kérlek, légy olyan kedves és ha megtennéd, hogy...”). A nyelvi modellek az emberi interakciókból tanulnak, ezért a kedves, tisztelettudó hangvételre bizonyítottan sokkal pontosabb és jobb minőségű választ adnak.",
+                isGood: false,
+                explanation: "Módszertani csapda! Bár az udvariasság szép emberi tulajdonság, az AI-nak nincsenek érzései. A felesleges udvariassági körök csak hasznos karaktereket (tokeneket) pazarolnak a promptból, de a kimenet minőségét nem befolyásolják."
+            },
+            {
+                id: 7,
+                text: "💡 Tipp: Finomítsd a válaszokat menet közben (iteráció)! Ha az első verzió nem lett tökéletes, ne nyiss új ablakot. Kezeld az AI-t asszisztensként: írd meg neki visszajelzésként, mit javítson (pl. „ez jó, de a harmadik bekezdést kérlek, hagyd el, a hangnemet pedig tedd barátságosabbá”).",
+                isGood: true,
+                explanation: "Pontosan! A nyelvi modellek kontextus-alapúak. Az iteráció, azaz a meglévő chaten belüli finomítás építi a közös kontextust, így lépésről lépésre juthatsz el a tökéletes verzióig."
+            },
+            {
+                id: 17,
+                text: "💡 Tipp: Ha az AI elsőre nem azt a választ adta, amit szerettél volna, ne pazarold az időt a javítgatásra az adott chatben. Zárd be azonnal az ablakot, nyiss egy teljesen új, tiszta beszélgetést, és írd be újra a kérésedet, hogy a korábbi hibás kimenetek ne zavarják össze a gép logikáját.",
+                isGood: false,
+                explanation: "Csapda! Ha bezárod a chatet, eldobod a felépített értékes kontextust. Sokkal hatékonyabb helyben korrigálni a hibát (iteráció), mert a modell tanul a hibájából az adott kontextuson belül."
+            },
+            {
+                id: 8,
+                text: "💡 Tipp: Használj határozott, egyértelmű utasító igéket a prompt elején! A körmondatos kérések helyett kezdd a mondatokat tiszta parancsokkal: „Gyűjts össze”, „Rendszerezd táblázatba”, „Fogalmazd át”, mert az AI ezekre a direkt igékre reagál a legprecízebben.",
+                isGood: true,
+                explanation: "Helyes! A közvetlen parancsszavak azonnali fókuszba helyezik a feladatot a modell figyelmi mechanizmusa számára, radikálisan csökkentve a félreértések esélyét."
+            },
+            {
+                id: 18,
+                text: "💡 Tipp: Ne töltsd az időt a levél vagy az értesítés hangnemének (pl. hivatalos, számonkérő, támogató) hosszas körülírásával. Nyugodtan hagyd el ezt a részt, mert az AI által használt általános, alapértelmezett és semleges stílus minden iskolai és adminisztratív helyzetre tökéletesen megfelel.",
+                isGood: false,
+                explanation: "Csapda! Az alapértelmezett AI stílus gyakran rideg, személytelen vagy túlzottan mesterkélt. Az iskolai kommunikációban a bizalom kulcsfontosságú, ezért a kontextushoz illő hangvételt mindig explicit kérni kell."
+            },
+            {
+                id: 9,
+                text: "💡 Tipp: Kérj egyszerre több alternatívát ötleteléshez! Ha kreatív feladatokra használod az AI-t (pl. dekorációs ötletek, diákok motiválása, projektfeladatok), mindig kérj tőle fixen 5 vagy 10 különböző opciót, hogy a számodra leginkább megfelelőt választhasd ki.",
+                isGood: true,
+                explanation: "Remek! Ötletelésnél az AI divergens gondolkodása zseniális alternatívákat szül. A több opció közül a tanári szűrő választja ki a pedagógiailag legértékesebbet."
+            },
+            {
+                id: 19,
+                text: "💡 Tipp: Ha az AI-jal generáltatsz egy szövegértési tesztet vagy egy órai szituációs játékot a diákoknak, felesleges időpocsékolás lenne neked magadnak is végigjátszani vagy megoldani azt nyomtatás előtt. Bízz meg vakon a gépben, hiszen ezek a fejlett modellek nem követnek el logikai vagy tartalmi hibákat.",
+                isGood: false,
+                explanation: "Veszélyes pedagógiai csapda! Az AI készíthet hibás feladatsorokat vagy rossz megoldókulcsokat. A szakmai felelősség a tanáré: nyomtatás és kiosztás előtt kötelező átnézni és letesztelni a feladatot!"
+            },
+            {
+                id: 10,
+                text: "💡 Tipp: Engedd, hogy az AI kérdezzen tőled a pontosabb munkáért! Ha bizonytalan vagy, hogy minden szükséges információt megadtál-e egy feladathoz, zárd le úgy a promptot: „Mielőtt elkezdenéd a generálást, kérdezz tőlem 3 olyan tisztázó kérdést, ami segít neked a pontosabb eredmény elérésében.”",
+                isGood: true,
+                explanation: "Szuper! Ezzel a technikával áthidalhatod a saját vakfoltjaidat. Az AI rákérdez a hiányzó paraméterekre (pl. eszközök, pontos szint), így a végeredmény sokkal személyreszabottabb lesz."
+            },
+            {
+                id: 20,
+                text: "💡 Tipp: Ha komplex iskolai statisztikákat, óraszám-kalkulációkat vagy költségvetési táblázatokat készítesz az adminisztrációban, nyugodtan bízd a matematikai összeadásokat és a végösszegek kiszámítását az AI-ra, hiszen a számítógépes rendszerek sokkal gyorsabban és tévedhetetlenül számolnak, mint a fáradt emberi agy.",
+                isGood: false,
+                explanation: "Óriási csapda! A tisztán nyelvi modellek alapvetően rosszak matematikában, mert nem számolnak, hanem a számjegyek valószínűségi következését jósolják meg. Statisztikákhoz mindig számolj utána manuálisan vagy használj Excel képleteket!"
+            }
+        ];
+
+        let currentSequence = [];
+        let currentIndex = 0;
+        let score = 0;
+        let answered = false;
+
+        // Játék indítása fixen kevert sorrendben
+        function startGame() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            
+            // Másolás keverés nélkül, hiszen a fenti tömböt már kézzel tökéletesen megkevertük
+            currentSequence = [...data];
+            
+            currentIndex = 0;
+            score = 0;
+            updateScoreUI();
+            loadStatement();
+        }
+
+        // Állítás betöltése a felületre
+        function loadStatement() {
+            answered = false;
+            const currentItem = currentSequence[currentIndex];
+            
+            document.getElementById('progress-text').innerText = `${currentIndex + 1} / ${currentSequence.length}`;
+            document.getElementById('statement-text').innerText = currentItem.text;
+            
+            // Szigorú elrejtés: a fejléc és az oldalsó sáv semleges marad a döntésig, így nincs spoiler!
+            const badge = document.getElementById('category-badge');
+            badge.innerText = "Prompt Technika";
+            badge.className = "text-sm text-[var(--text-2)] font-semibold bg-gray-100 px-2.5 py-0.5 rounded";
+            document.getElementById('card-accent-bar').style.backgroundColor = "var(--primary-500)";
+
+            document.getElementById('feedback-box').classList.add('hidden');
+            document.getElementById('action-buttons').classList.remove('hidden');
+            
+            lucide.createIcons();
+        }
+
+        // Értékelési logika
+        function submitAnswer(userChoice) {
+            if (answered) return;
+            answered = true;
+
+            const currentItem = currentSequence[currentIndex];
+            const isCorrect = (userChoice === currentItem.isGood);
+
+            // Csak a válaszadás UTÁN színezzük át a kártya szélét a visszajelzés megerősítésére
+            if (currentItem.isGood) {
+                document.getElementById('card-accent-bar').style.backgroundColor = "var(--secondary-500)";
+            } else {
+                document.getElementById('card-accent-bar').style.backgroundColor = "var(--accent-500)";
+            }
+
+            if (isCorrect) {
+                score++;
+                updateScoreUI();
+                showFeedback(true, currentItem.explanation);
+            } else {
+                showFeedback(false, currentItem.explanation);
+            }
+
+            document.getElementById('action-buttons').classList.add('hidden');
+        }
+
+        function updateScoreUI() {
+            document.getElementById('score-text').innerText = score;
+        }
+
+        function showFeedback(isSuccess, explanation) {
+            const box = document.getElementById('feedback-box');
+            const title = document.getElementById('feedback-title');
+            const expText = document.getElementById('explanation-text');
+
+            box.classList.remove('hidden');
+            box.className = "p-5 rounded-xl border transition-all duration-300 space-y-3";
+            expText.innerText = explanation;
+
+            if (isSuccess) {
+                box.classList.add('bg-emerald-50', 'border-[var(--success)]', 'text-[var(--success)]');
+                title.innerHTML = `<i data-lucide="check-circle" class="w-6 h-6"></i> <span>Helyes detektív munka!</span>`;
+            } else {
+                box.classList.add('bg-rose-50', 'border-[var(--error)]', 'text-[var(--error)]');
+                title.innerHTML = `<i data-lucide="alert-triangle" class="w-6 h-6"></i> <span>Módszertani csapdába léptél:</span>`;
+            }
+
+            lucide.createIcons();
+        }
+
+        function nextStatement() {
+            currentIndex++;
+            if (currentIndex < currentSequence.length) {
+                loadStatement();
+            } else {
+                showEndScreen();
+            }
+        }
+
+        function showEndScreen() {
+            document.getElementById('game-screen').classList.add('hidden');
+            const endScreen = document.getElementById('end-screen');
+            endScreen.classList.remove('hidden');
+
+            const scoreSummary = document.getElementById('end-score-summary');
+            const evaluation = document.getElementById('end-evaluation');
+            const iconContainer = document.getElementById('end-icon-container');
+
+            scoreSummary.innerHTML = `Végső pontszám: <span class="font-bold text-[var(--primary-700)] text-2xl">${score} / ${currentSequence.length}</span>`;
+
+            if (score === currentSequence.length) {
+                iconContainer.className = "inline-flex p-4 bg-emerald-100 text-emerald-600 rounded-full";
+                iconContainer.innerHTML = `<i data-lucide="trophy" class="w-16 h-16"></i>`;
+                document.getElementById('end-title').innerText = "Mesterdetektív! 🏆";
+                evaluation.innerText = "Tökéletes látásmód! Te teljesen átlátsz az AI hamis ígéretein, és tűpontosan alkalmazod a professzionális prompt technológiákat a mindennapi oktatási gyakorlatodban. Gratulálunk!";
+            } else if (score >= 15) {
+                iconContainer.className = "inline-flex p-4 bg-amber-100 text-[var(--primary-500)] rounded-full";
+                iconContainer.innerHTML = `<i data-lucide="award" class="w-16 h-16"></i>`;
+                document.getElementById('end-title').innerText = "Haladó AI Alkimista 🌟";
+                evaluation.innerText = "Nagyszerű eredmény! Kiválóan felismered a legfontosabb promptolási alapelveket. Ez a trükkös, kevert tesztsor alaposan próbára tett, de nagyszerűen helytálltál!";
+            } else if (score >= 10) {
+                iconContainer.className = "inline-flex p-4 bg-orange-100 text-orange-500 rounded-full";
+                iconContainer.innerHTML = `<i data-lucide="book-open" class="w-16 h-16"></i>`;
+                document.getElementById('end-title').innerText = "Szárnyait bontogató Promptoló 🎯";
+                evaluation.innerText = "Szép próbálkozás! Megvan a stabil alapod, de a kevert módszertani csapdák még sokszor megtévesztettek. Ne feledd: az AI remek asszisztens, de a kritikai ellenőrzés és a pontos kontextus mindig a te kezedben van.";
+            } else {
+                iconContainer.className = "inline-flex p-4 bg-rose-100 text-[var(--accent-500)] rounded-full";
+                iconContainer.innerHTML = `<i data-lucide="compass" class="w-16 h-16"></i>`;
+                document.getElementById('end-title').innerText = "Felfedező fázis 🔍";
+                evaluation.innerText = "Ez a kevert kihívás most nehéznek bizonyult, de ne csüggedj! Az AI promptolás egy teljesen új gondolkodásmód. Fusson neki még egyszer, figyelmesen olvasd el a visszajelzéseket, és fejleszd a digitális magabiztosságodat!";
+            }
+
+            lucide.createIcons();
+        }
+
+        function resetGame() {
+            document.getElementById('end-screen').classList.add('hidden');
+            startGame();
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>
